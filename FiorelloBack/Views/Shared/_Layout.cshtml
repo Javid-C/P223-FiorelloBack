@@ -344,10 +344,34 @@
                                 <div class="shop-basket">
                                     <span>CART</span><span>($</span><span>0</span><span>)</span>
                                 </div>
-                                <!-- <div class="basketList">
-                                    <div class="listProducts">
-
-                                    </div>
+                                 <div class="basketList">
+                                     <div class="listProducts">
+                                         @foreach (var item in layoutService.ShowBasket().BasketItems)
+	{
+                                         <div class="product">
+                                             <div class="image">
+                                                 <img src="">
+                                             </div>
+                                             <div>
+                                                 <p class="product-name">@item.Flower.Name</p>
+                                                 <p>
+                                                     <span class="product-count">
+                                                         @item.Count
+                                                     </span>
+                                                     X
+                                                     <span class="product-price">
+                                                         @item.Flower.Price$
+                                                     </span>
+                                                 </p>
+                                             </div>
+                                             <div>
+                                                 <div>
+                                                     <button class="btn-product-delete" data-id="@item.Flower.Id">x</button>
+                                                 </div>
+                                             </div>
+                                         </div>
+	}
+                                     </div>
 
                                         <div class="price-buttons">
                                             <div class="totalPrice">
@@ -369,7 +393,7 @@
                                             </div>
                                         </div>
 
-                                </div> -->
+                                </div> 
 
                             </div>
 

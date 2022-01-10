@@ -1,5 +1,6 @@
 ﻿using FiorelloBack.DAL;
 using FiorelloBack.Models;
+using FiorelloBack.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -72,35 +73,66 @@ namespace FiorelloBack.Controllers
 
             string basket = HttpContext.Request.Cookies["Basket"];
 
-            List<Flower> flowers;
+            //List<Flower> flowers;
             if(basket == null)
             {
+                BasketVM basketVM = new BasketVM
+                {
+                    BasketItems = new List<BasketItemVM>(),
+                    TotalPrice = flower.Price,
+                    Count = 1
 
-                flowers = new List<Flower>();
-                flowers.Add(flower);
+                };
 
+                BasketItemVM basketItemVM = new BasketItemVM
+                {
+                    Flower = flower,
+                    Count = 1
+                };
 
+                basketVM.BasketItems.Add(basketItemVM);
+                string basketStr = JsonConvert.SerializeObject(basketVM);
+
+                HttpContext.Response.Cookies.Append("Basket", basketStr);
+                //flowers = new List<Flower>();
+                //flowers.Add(flower);
             }
             else
             {
-                flowers = JsonConvert.DeserializeObject<List<Flower>>(basket);
-                flowers.Add(flower);
+                BasketVM basketVM = JsonConvert.DeserializeObject<BasketVM>(basket);
+                BasketItemVM basketItemVM = basketVM.BasketItems.FirstOrDefault(f => f.Flower.Id == flower.Id);
+                if(basketItemVM == null)
+                {
+                    basketItemVM = new BasketItemVM
+                    {
+                        Flower = flower,
+                        Count = 1
+                    };
+                    basketVM.BasketItems.Add(basketItemVM);
+                    basketVM.Count++;
+                }
+                else
+                {
+                    basketItemVM.Count++;
+                }
 
+                basketVM.TotalPrice += flower.Price;
+                Math.Round(basketVM.TotalPrice, 2);
+                string basketStr = JsonConvert.SerializeObject(basketVM);
 
+                HttpContext.Response.Cookies.Append("Basket", basketStr);
+                //flowers = JsonConvert.DeserializeObject<List<Flower>>(basket);
+                //flowers.Add(flower);
             }
-            string basketStr = JsonConvert.SerializeObject(flowers);
-
-
-
-
-            HttpContext.Response.Cookies.Append("Basket", basketStr);
+            //string basketStr = JsonConvert.SerializeObject(flowers);
+            
             return RedirectToAction("Index", "Home");
         }
 
         public IActionResult ShowBasket()
         {
             string basketStr = HttpContext.Request.Cookies["Basket"];
-            List<Flower> basket = JsonConvert.DeserializeObject<List<Flower>>(basketStr);
+            BasketVM basket = JsonConvert.DeserializeObject<BasketVM>(basketStr);
             return Json(basket);
         }
     }
